@@ -11,7 +11,6 @@ const config = {
     windowHeight: 1000,
     repeatCount: 10,
     channels: 1,
-    appendTestDurationMs: 5000,
     save: false,
       //test: 'test-lcjs.html',
     //test: 'test-amcharts.html',
@@ -49,9 +48,6 @@ const browser = await puppeteer.launch({
         '--disable-extensions-http-throttling',
         `--window-size=${config.windowWidth + 100},${config.windowHeight + 200}`,
     ],
-    // defaultViewport: null,
-    // NOTE: For debugging
-    // slowMo: 500,
 })
 
 const median = (numbers) => {
@@ -63,8 +59,6 @@ const median = (numbers) => {
 }
 
 const runTest = (config) => {
-    config.appendPointsPerSecond = config.appendPointsPerSecond !== undefined ? config.appendPointsPerSecond : (config.dataSetSize * 1) / 10
-
     return new Promise(async (resolve) => {
         const page = await browser.newPage()
         let timeout
@@ -85,7 +79,6 @@ const runTest = (config) => {
             window.moveTo(0, 0)
             window.resizeTo(screen.width, screen.height)
         })
-        // await new Promise((resolve) => setTimeout(resolve, 10_000));
         await page.exposeFunction('error', async () => {
             console.log('error reported by bench app')
             resolve({ error: true })
@@ -98,40 +91,26 @@ const runTest = (config) => {
             let loadTimeSeconds
             let loadJSHeapUsedSize
             let loadScriptDurationSeconds
-            let loadingTestFinished = false
+
             await page.exposeFunction('loadingTestFinished', async (testStart, testEnd) => {
                 const tReceivedMessage = performance.now()
-                // Take a full screen screenshot using puppeteer. This forces the on-going GPU process to unclog in order to read-back pixel data from the display.
-                const buffer = await page.screenshot({
-                    type: 'png',
-                })
+                const buffer = await page.screenshot({ type: 'png' })
                 const tAppUnclogged = performance.now()
                 const loadingSpeedResultMs = testEnd - testStart + (tAppUnclogged - tReceivedMessage)
                 clearTimeout(timeout)
-                timeout = setTimeout(async () => {
-                    console.log('timeout C')
-                    resolve({ error: true })
-                    await page.close()
-                }, 5_000 + config.appendTestDurationMs)
-                // NOTE: For debugging whether chart actually displayed the data
-                // await page.screenshot({ path: 'screenshot.png', type: 'png' })
                 metrics1 = await page.metrics()
                 loadTimeSeconds = loadingSpeedResultMs / 1000
                 loadJSHeapUsedSize = metrics1.JSHeapUsedSize - metrics0.JSHeapUsedSize
                 loadScriptDurationSeconds = metrics1.ScriptDuration - metrics0.ScriptDuration
 
-                // Confirm that the chart was visible in the screenshot by analysing the png.
-                // We simply check that there is any non white pixel in the screenshot.
-                // If some chart has any scenario where this might be the case even before the chart is visible, then those must be confirmed individually.
                 const png = PNG.sync.read(buffer)
                 let anyNonWhitePixel = false
-                for (var y = 0; y < png.height; y++) {
-                    for (var x = 0; x < png.width; x++) {
-                        var i = (png.width * y + x) << 2
+                for (let y = 0; y < png.height; y++) {
+                    for (let x = 0; x < png.width; x++) {
+                        const i = (png.width * y + x) << 2
                         const r = png.data[i]
                         const g = png.data[i + 1]
                         const b = png.data[i + 2]
-                        const a = png.data[i + 3]
                         if (r !== 255 || g !== 255 || b !== 255) {
                             anyNonWhitePixel = true
                             break
@@ -144,34 +123,26 @@ const runTest = (config) => {
                     resolve({ error: true })
                     await page.close()
                 }
-                loadingTestFinished = true
-                // For manual confirmation via file
+
+                // Optional: save screenshot
                 fs.writeFileSync(`${config.test}.png`, PNG.sync.write(png))
-            })
-            await page.exposeFunction('appendTestFinished', async (timestamp, appendFPS) => {
-                if (!loadingTestFinished) {
-                    await new Promise((resolve) => setTimeout(resolve, 3000))
-                }
-                clearTimeout(timeout)
-                const metrics2 = await page.metrics()
-                const appendScriptDurationSeconds = metrics2.ScriptDuration - metrics1.ScriptDuration
-                const appendJSHeapUsedSize = metrics2.JSHeapUsedSize - metrics1.JSHeapUsedSize
-                await page.close()
+
                 resolve({
                     loadTimeSeconds,
                     loadJSHeapUsedSize,
                     loadScriptDurationSeconds,
-                    appendScriptDurationSeconds,
-                    appendFPS,
-                    appendJSHeapUsedSize,
                 })
+
+                await page.close()
             })
+
             clearTimeout(timeout)
             timeout = setTimeout(async () => {
                 console.log('timeout B')
                 resolve({ error: true })
                 await page.close()
-            }, config.timeoutMs || 15_000)
+            }, config.timeoutMs || 15000)
+
             await page.evaluate(() => {
                 requestAnimationFrame(() => {
                     window.testStart = window.performance.now()
@@ -179,11 +150,13 @@ const runTest = (config) => {
                 })
             })
         })
+
         timeout = setTimeout(async () => {
             console.log('timeout A')
             resolve({ error: true })
             await page.close()
-        }, 60_000)
+        }, 60000)
+
         await page.goto(`http://localhost:8080/${config.test}`)
     })
 }
@@ -202,18 +175,13 @@ if (results.length > 0) {
     const loadTimeSeconds = median(results.map((test) => test.loadTimeSeconds))
     const loadJSHeapUsedSize = median(results.map((test) => test.loadJSHeapUsedSize))
     const loadScriptDurationSeconds = median(results.map((test) => test.loadScriptDurationSeconds))
-    const appendScriptDurationSeconds = median(results.map((test) => test.appendScriptDurationSeconds))
-    const appendFPS = median(results.map((test) => test.appendFPS))
-    const appendJSHeapUsedSize = median(results.map((test) => test.appendJSHeapUsedSize))
 
     const testResults = {
         loadTimeSeconds,
         loadJSHeapUsedSize,
         loadScriptDurationSeconds,
-        appendScriptDurationSeconds,
-        appendFPS,
-        appendJSHeapUsedSize,
     }
+
     console.log(`MEDIAN SCORE:${JSON.stringify(testResults)}`)
 
     if (config.save) {
