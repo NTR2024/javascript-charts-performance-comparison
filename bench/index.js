@@ -9,14 +9,18 @@ import { PNG } from 'pngjs'
 const config = {
     windowWidth: 2000,
     windowHeight: 1000,
-    repeatCount: 5,
+    repeatCount: 10,
     channels: 1,
     appendTestDurationMs: 5000,
     save: false,
-    test: 'test-lcjs.html',
-    dataSetSize: 100_000,
+    //test: 'test-lcjs.html',
+    //test: 'test-echarts.html',
+    test: 'test-highcharts.html',
+    //test: 'test-scichart.html',
+    //test: 'test-plotly.html',
+    dataSetSize: 2_000_000,
     feature: 'line',
-    timeoutMs: 10000,
+    timeoutMs: 100000,
 }
 
 const browser = await puppeteer.launch({

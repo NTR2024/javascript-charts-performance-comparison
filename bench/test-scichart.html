@@ -1,6 +1,6 @@
 <html>
     <head>
-        <script src="https://cdn.jsdelivr.net/npm/scichart@3.2.516/index.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/scichart@3/index.min.js" crossorigin="anonymous"></script>
         <style>
             body {
                 margin: 0px;
@@ -43,8 +43,8 @@
             // See https://github.com/Arction/javascript-charts-performance-comparison/blob/main/extra-info.md
             SciChartDefaults.enableResampling = false
             SciChartSurface.configure({
-                dataUrl: 'https://cdn.jsdelivr.net/npm/scichart@3.2.516/_wasm/scichart2d.data',
-                wasmUrl: 'https://cdn.jsdelivr.net/npm/scichart@3.2.516/_wasm/scichart2d.wasm',
+                dataUrl: 'https://cdn.jsdelivr.net/npm/scichart@3/_wasm/scichart2d.data',
+                wasmUrl: 'https://cdn.jsdelivr.net/npm/scichart@3/_wasm/scichart2d.wasm',
             })
 
             window.testSetup().then(({ channels, dataSetSize, appendPointsPerSecond, appendTestDurationMs, feature }) => {
