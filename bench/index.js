@@ -9,24 +9,27 @@ import { PNG } from 'pngjs'
 const config = {
     windowWidth: 2000,
     windowHeight: 1000,
-    repeatCount: 10,
+    repeatCount: 3,
     channels: 1,
     save: false,
-      //test: 'test-lcjs.html',
+    //test: 'test-lcjs.html',
+    //test: 'test-echarts.html',
+    //test: 'test-scichart.html', 
     //test: 'test-amcharts.html',
     //test: 'test-anychart.html',
     //test: 'test-apexcharts.html',
-    test: 'test-c3js.html',
+    //test: 'test-c3js.html',
     //test: 'test-canvasjs.html',
     //test: 'test-chartjs.html',
     //test: 'test-devextreme.html',
-    //test: 'test-dvxcharts.html', // works with 2k
-    //test: 'test-dygraphs.html',  // draws something but slow
-    //test: 'test-echarts.html',
-    //test: 'test-epoch.html', // strange test
-    //test: 'test-fusioncharts.html', // didn't start
-    //test: 'test-plotly.html', // started but timed out
-    //test: 'test-scichart.html', // 0.7 sec with 2 Mil
+    //test: 'test-dvxcharts.html', 
+    //test: 'test-dygraphs.html',  
+    
+    //test: 'test-epoch.html',
+    //test: 'test-fusioncharts.html',
+    //test: 'test-highcharts.html', 
+    test: 'test-plotly.html',
+    
     //test: 'test-shieldui.html',
     //test: 'test-smoothiecharts.html',
     //test: 'test-taucharts.html',
@@ -34,9 +37,9 @@ const config = {
     //test: 'test-toastui.html',
     //test: 'test-uplot.html',
     //test: 'test-zingchart.html',
-    dataSetSize: 1_000_00,
+    dataSetSize: 2_000_000,
     feature: 'line',
-    timeoutMs: 10000,
+    timeoutMs: 120000,
 }
 
 const browser = await puppeteer.launch({
