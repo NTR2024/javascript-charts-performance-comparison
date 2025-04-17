@@ -28,7 +28,7 @@ const config = {
     //test: 'test-epoch.html',
     //test: 'test-fusioncharts.html',
     //test: 'test-highcharts.html', 
-    test: 'test-plotly.html',
+    //test: 'test-plotly.html',
     
     //test: 'test-shieldui.html',
     //test: 'test-smoothiecharts.html',
@@ -36,10 +36,10 @@ const config = {
     //test: 'test-googlecharts.html',
     //test: 'test-toastui.html',
     //test: 'test-uplot.html',
-    //test: 'test-zingchart.html',
-    dataSetSize: 2_000_000,
+    test: 'test-zingchart.html',
+    dataSetSize: 2_000_00,
     feature: 'line',
-    timeoutMs: 120000,
+    timeoutMs: 20000,
 }
 
 const browser = await puppeteer.launch({

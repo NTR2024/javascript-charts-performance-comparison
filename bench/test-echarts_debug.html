@@ -1,0 +1,91 @@
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+        <style>
+            body {
+                margin: 0px;
+            }
+
+            #chart {
+                width: 100vw;
+                height: 100vh;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="chart"></div>
+        <script>
+            let windowWidth = 2000
+    let windowHeight=  1000
+    let channels= 1
+
+    let dataSetSize = 2_000_000
+    let feature =  'line'
+    let timeoutMs = 120000
+                 // Initialize data
+                const xs = new Array(dataSetSize)
+                for (let i = 0; i < dataSetSize; i += 1) {
+                    xs[i] = i
+                }
+                const dataSetsY = new Array(channels).fill(0).map((_, ch) => {
+                    const ys = new Array(dataSetSize)
+                    for (let i = 0; i < dataSetSize; i += 1) {
+                        ys[i] = Math.random() + ch
+                    }
+                    return ys
+                })
+                const channelData = dataSetsY.map((yArray) => {
+                    return xs.map((x, index) => [x, yArray[index]])
+                })
+
+                const chartType = feature === 'scatter' ? 'scatter' : 'line'
+
+                const seriesArray = []
+                for (let i = 0; i < channels; i++) {
+                    const dataSeries = {
+                        name: `Channel #${i}`,
+                        type: chartType,
+                        data: channelData[i],
+                        showSymbol: false,
+                        hoverAnimation: false,
+                        lineStyle: {
+                            width: 2,
+                        },
+                        emphasis: {
+                            lineStyle: {
+                                width: 2,
+                            },
+                        },
+                        smooth: feature === 'spline' ? true : false,
+                        step: feature === 'step' ? 'start' : undefined,
+                        areaStyle: feature === 'area' ? {} : undefined,
+                    }
+                    seriesArray.push(dataSeries)
+                }
+
+                
+                    // Initialize chart
+                    const chart = echarts.init(document.getElementById('chart'))
+                    alert("Here")
+                    try
+                    {
+                    chart.setOption({
+                        animation: false,
+                        title: {},
+                        xAxis: {
+                            type: 'value',
+                            min: 0,
+                            max: dataSetSize,
+                        },
+                        yAxis: { type: 'value' },
+                        series: seriesArray,
+                    })
+                    }
+                    catch (e) {
+                        console.log(e)
+                        alert(e)
+                    }
+        </script>
+    </body>
+</html>

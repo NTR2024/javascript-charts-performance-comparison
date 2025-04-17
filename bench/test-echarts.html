@@ -18,7 +18,8 @@
         <script src="common.js"></script>
         <script>
             window.testSetup().then(({ channels, dataSetSize, appendPointsPerSecond, testAppend, appendTestDurationMs, feature }) => {
-                // Initialize data
+                let startInit = window.performance.now()
+                 // Initialize data
                 const xs = new Array(dataSetSize)
                 for (let i = 0; i < dataSetSize; i += 1) {
                     xs[i] = i
@@ -59,6 +60,8 @@
                     seriesArray.push(dataSeries)
                 }
 
+                let endInit = window.performance.now()
+                
                 window.testPerform = () => {
                     // loading speed test
 
@@ -75,8 +78,10 @@
                         yAxis: { type: 'value' },
                         series: seriesArray,
                     })
+                    let initTime = endInit - startInit
+                alert(initTime)
 
-                    const runAppendPerformanceTest = () => {
+                    /*const runAppendPerformanceTest = () => {
                         return new Promise((resolve) => {
                             const tStart = window.performance.now()
                             let frameCount = 0
@@ -123,16 +128,16 @@
                             }
                             requestAnimationFrame(frame)
                         })
-                    }
+                    }*/
 
                     requestAnimationFrame(async () => {
                         window.loadingTestFinished(window.testStart, window.performance.now())
                         await new Promise((resolve) => setTimeout(resolve, 500))
-                        if (appendTestDurationMs === 0) {
+                        /*if (appendTestDurationMs === 0) {
                             window.appendTestFinished(window.performance.now(), -1)
                         } else {
                             await runAppendPerformanceTest()
-                        }
+                        }*/
                     })
                 }
 
