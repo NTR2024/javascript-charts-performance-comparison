@@ -1,0 +1,101 @@
+<html>
+    <head>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <style>
+            body {
+                margin: 0px;
+            }
+
+            #chart {
+                width: 100vw;
+                height: 100vh;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="chart"></div>
+        <script src="common.js"></script>
+        <script>
+            window.testSetup().then(({ channels, dataSetSize, feature }) => {
+                // Initialize data
+                const xs = new Array(dataSetSize)
+                for (let i = 0; i < dataSetSize; i += 1) {
+                    xs[i] = i
+                }
+                const dataSetsY = new Array(channels).fill(0).map((_, ch) => {
+                    const ys = new Array(dataSetSize)
+                    for (let i = 0; i < dataSetSize; i += 1) {
+                        ys[i] = Math.random() + ch
+                    }
+                    return ys
+                })
+
+                const channelData = xs.map((x) => {
+                    const row = [x]
+                    for (let i = 0; i < channels; i++) {
+                        row.push(dataSetsY[i][x])
+                    }
+                    return row
+                })
+
+                window.testPerform = () => {
+                    google.charts.load('52', { packages: ['corechart'] })
+                    google.charts.setOnLoadCallback(drawChart)
+
+                    const curveType = feature === 'spline' ? 'function' : ''
+                    const areaOpacity = feature === 'area' ? 0.25 : 0.0
+                    const lineWidth = feature === 'scatter' ? 0 : 2
+                    const pointSize = feature === 'scatter' ? 3 : 0
+
+                    function drawChart() {
+                        const chartData = new google.visualization.DataTable()
+                        chartData.addColumn('number', 'X')
+                        for (let i = 0; i < channels; i++) {
+                            chartData.addColumn('number', `Channel ${i}`)
+                        }
+                        chartData.addRows(channelData)
+
+                        let chart
+                        switch (feature) {
+                            case 'area':
+                                chart = new google.visualization.AreaChart(document.getElementById('chart'))
+                                break
+                            case 'scatter':
+                                chart = new google.visualization.ScatterChart(document.getElementById('chart'))
+                                break
+                            case 'step':
+                                chart = new google.visualization.SteppedAreaChart(document.getElementById('chart'))
+                                break
+                            default:
+                                chart = new google.visualization.LineChart(document.getElementById('chart'))
+                        }
+
+                        chart.draw(chartData, {
+                            curveType,
+                            areaOpacity,
+                            lineWidth,
+                            pointSize,
+                            vAxis: {
+                                minValue: 0,
+                                maxValue: channels,
+                            },
+                            hAxis: {
+                                minValue: 0,
+                                maxValue: dataSetSize,
+                            },
+                        })
+
+                        requestAnimationFrame(() => {
+                            window.loadingTestFinished(window.testStart, window.performance.now())
+                            // No update logic
+                            window.appendTestFinished(window.performance.now(), -1)
+                        })
+                    }
+                }
+
+                window.testReadyToBegin()
+            })
+        </script>
+    </body>
+</html>

@@ -1,0 +1,81 @@
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <style>
+            body {
+                margin: 0px;
+            }
+            #chart {
+                width: 100vw;
+                height: 100vh;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div>
+            <canvas id="chart"></canvas>
+        </div>
+        <script src="common.js"></script>
+        <script>
+            window.testSetup().then(({ channels, dataSetSize, feature }) => {
+                // Initialize data
+                const xs = new Float32Array(dataSetSize);
+                for (let i = 0; i < dataSetSize; i += 1) {
+                    xs[i] = i;
+                }
+                const dataSetsY = new Array(channels).fill(0).map((_, ch) => {
+                    const ys = new Float32Array(dataSetSize);
+                    for (let i = 0; i < dataSetSize; i += 1) {
+                        ys[i] = Math.random() + ch;
+                    }
+                    return ys;
+                });
+                const initialData = new Array(channels).fill(0).map((_, ch) => {
+                    const ys = new Array(dataSetSize);
+                    for (let i = 0; i < dataSetSize; i += 1) {
+                        ys[i] = { x: xs[i], y: dataSetsY[ch][i] };
+                    }
+                    return ys;
+                });
+
+                window.testPerform = () => {
+                    // Initialize chart
+                    const ctx = document.getElementById('chart');
+                    const chart = new Chart(ctx, {
+                        type: feature === 'scatter' ? 'scatter' : 'line',
+                        data: {
+                            datasets: initialData.map((data, index) => ({
+                                label: `Channel ${index + 1}`,
+                                data: data,
+                                fill: feature === 'area' ? true : false,
+                                stepped: feature === 'step' ? true : false,
+                                tension: feature === 'spline' ? 0.2 : 0.0,
+                            })),
+                        },
+                        options: {
+                            scales: {
+                                x: {
+                                    type: 'linear',
+                                    position: 'bottom',
+                                },
+                                y: {
+                                    type: 'linear',
+                                    position: 'left',
+                                },
+                            },
+                        },
+                    });
+
+                    // Immediately finish loading test (no append testing)
+                    requestAnimationFrame(() => {
+                        window.loadingTestFinished(window.testStart, window.performance.now());
+                        window.appendTestFinished(window.performance.now(), -1);
+                    });
+                };
+
+                window.testReadyToBegin();
+            });
+        </script>
+    </body>
+</html>

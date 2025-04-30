@@ -1,0 +1,64 @@
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <style>
+    body {
+      margin: 0;
+    }
+    #chart {
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="chart"></div>
+  <script src="common.js"></script>
+  <script>
+    window.testSetup().then(({ channels, dataSetSize, feature }) => {
+      // Create initial dataset
+      const data = [];
+      for (let i = 0; i < dataSetSize; i++) {
+        for (let ch = 0; ch < channels; ch++) {
+          data.push({ x: i, y: Math.random() + ch, channel: `Channel ${ch}` });
+        }
+      }
+
+      window.testPerform = () => {
+        const markType = feature === 'scatter' ? 'point' :
+                         feature === 'area'    ? 'area' :
+                         feature === 'step'    ? 'line' : 'line';
+
+        const vegaLiteSpec = {
+          $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
+          width: 'container',
+          height: 'container',
+          data: { values: data },
+          mark: {
+            type: markType,
+            interpolate: feature === 'spline' ? 'monotone' : undefined,
+            point: feature === 'scatter',
+            opacity: feature === 'area' ? 0.3 : 1
+          },
+          encoding: {
+            x: { field: 'x', type: 'quantitative' },
+            y: { field: 'y', type: 'quantitative' },
+            color: { field: 'channel', type: 'nominal' }
+          }
+        };
+
+        vegaEmbed('#chart', vegaLiteSpec, { actions: false }).then(() => {
+          requestAnimationFrame(() => {
+            window.loadingTestFinished(window.testStart, window.performance.now());
+            window.appendTestFinished(window.performance.now(), -1);
+          });
+        });
+      };
+
+      window.testReadyToBegin();
+    });
+  </script>
+</body>
+</html>
